@@ -1,0 +1,23 @@
+<!-- main.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+</head>
+<body>
+    <h1>Uploaded Excel Data</h1>
+    <ul>
+        {% for data in excel_data %}
+        <li>
+            <strong>File Name:</strong> {{ data.file_name }} <br>
+            <strong>File Content:</strong> <a href="{{ data.file_content.url }}">Download Excel</a>
+        </li>
+        {% empty %}
+        <li>No Excel data uploaded yet.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
