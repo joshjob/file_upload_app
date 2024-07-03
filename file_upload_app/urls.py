@@ -1,7 +1,8 @@
+
 """
 URL configuration for file_upload_app project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The urlpatterns list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
 Examples:
 Function views
@@ -15,10 +16,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-from fileupload import views
+from django.urls import path, include  # Include the include function
+from fileupload import views  # Import views if needed
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('fileupload.urls')),
+    path('', include('fileupload.urls')),  # Include fileupload.urls module
 ]
