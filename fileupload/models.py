@@ -21,8 +21,7 @@ class originaldata(models.Model):
     PG = 'PG'
     
     COURSE_CATEGORIES = [
-        (UG, 'Undergraduate'),
-        (PG, 'Postgraduate'),
+        (UG, PG)
     ]
 
     exam_code = models.CharField(max_length=100, null=True, blank=True)
@@ -50,7 +49,7 @@ class originaldata(models.Model):
 
     course_category = models.CharField(
         max_length=2,
-        choices=COURSE_CATEGORIES,
+        choices=COURSE_CATEGORIES
     )
     report_name = models.CharField(max_length=255, null=True, blank=True)
 

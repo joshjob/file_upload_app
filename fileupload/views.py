@@ -1,11 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from .models import UploadedFile, originaldata
 from .forms import UploadFileForm
 from django.contrib import messages
 import pandas as pd
 import sqlite3
 
-def load_data(excel_file_path, sqlite_file_path, table_name, course_category, report_name):
+def load_data(excel_file_path, sqlite_file_path, table_name, is_ug, report_name):
     df = pd.read_excel(excel_file_path)
 
     column_mapping = {
@@ -34,12 +34,13 @@ def load_data(excel_file_path, sqlite_file_path, table_name, course_category, re
     }
 
     df.rename(columns=column_mapping, inplace=True)
-    df['course_category'] = course_category
+    df['course_category'] = 'UG' if is_ug else 'PG'
     df['report_name'] = report_name
 
     conn = sqlite3.connect(sqlite_file_path)
     df.to_sql(table_name, conn, if_exists='append', index=False)
     conn.close()
+
 
 def upload_file(request):
     if request.method == 'POST':
@@ -48,24 +49,35 @@ def upload_file(request):
             new_file = form.save()
             file_path = new_file.file.path
 
-            course_category = form.cleaned_data['course_category']
-            report_name = form.cleaned_data['report_name']
+            course_category = request.POST.get('course_category')  # Correctly get course_category value from POST
+            report_name = request.POST.get('report_name')
 
-            load_data(file_path, "db.sqlite3", "fileupload_originaldata", course_category, report_name)
+            # Ensure course_category is either 'UG' or 'PG'
+            if course_category in dict(originaldata.COURSE_CATEGORIES):
+                is_ug = (course_category == originaldata.UG)
+            else:
+                # Handle invalid case, default to False (PG)
+                is_ug = False
+
+            load_data(file_path, "db.sqlite3", "fileupload_originaldata", is_ug, report_name)
 
             messages.success(request, 'Successfully Uploaded')
-            return redirect('upload_success')
+            return redirect('main')
     else:
         form = UploadFileForm()
     return render(request, 'fileupload/upload.html', {'form': form})
 
+
 def display_excel_data(request):
-    data = originaldata.objects.all()
-    return render(request, 'fileupload/display_data.html', {'data': data})
+    excel_data = originaldata.objects.all()
+    context = {'excel_data': excel_data}
+    return render(request, 'fileupload/main.html', context)
 
 def upload_success(request):
     return render(request, 'fileupload/upload_success.html')
 
 def file_uploaded(request, file_id):
-    file = get_object_or_404(UploadedFile, id=file_id)
-    return render(request, 'fileupload/file_uploaded.html', {'file': file})
+    return HttpResponse(f"File uploaded with ID: {file_id}")
+
+def home(request):
+    return render(request, 'home.html')
